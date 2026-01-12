@@ -9,8 +9,10 @@ let isListening = false;
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 PriceSmart AI Initializing...');
-
-     setupMobileMenu();
+    
+    // Setup mobile menu
+    setupMobileMenu();
+    
     // Setup all event listeners
     setupEventListeners();
     
@@ -161,14 +163,7 @@ function setupEventListeners() {
         closeProfileBtn.addEventListener('click', closeProfileModal);
     }
     
-    const backButtons = ['newSearchBtn', 'homeLogo', 'nav-home'];
-    backButtons.forEach(btnId => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                showHomeScreen();
-
+    // Setup modal close on background click
     document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -178,6 +173,79 @@ function setupEventListeners() {
     });
     
     console.log('✅ All event listeners added');
+}
+
+// ==================== MOBILE MENU ====================
+function setupMobileMenu() {
+    const menuToggle = document.getElementById('menuToggle');
+    if (!menuToggle) {
+        // Create menu toggle button if it doesn't exist
+        const nav = document.querySelector('nav');
+        if (nav) {
+            const menuToggleBtn = document.createElement('button');
+            menuToggleBtn.id = 'menuToggle';
+            menuToggleBtn.className = 'menu-toggle';
+            menuToggleBtn.textContent = '☰';
+            menuToggleBtn.style.cssText = `
+                display: none;
+                background: transparent;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 10px;
+            `;
+            
+            // Insert at the beginning of nav
+            nav.insertBefore(menuToggleBtn, nav.firstChild);
+            
+            // Add styles for mobile menu
+            const style = document.createElement('style');
+            style.textContent = `
+                @media (max-width: 768px) {
+                    .menu-toggle {
+                        display: block !important;
+                    }
+                    .nav-links {
+                        position: fixed;
+                        top: 70px;
+                        left: 0;
+                        right: 0;
+                        background: rgba(11, 15, 26, 0.95);
+                        backdrop-filter: blur(20px);
+                        flex-direction: column;
+                        padding: 20px;
+                        border-radius: 0 0 20px 20px;
+                        display: none;
+                        z-index: 1000;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    }
+                    .nav-links.show {
+                        display: flex;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Setup toggle functionality
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks) {
+                menuToggleBtn.addEventListener('click', function() {
+                    navLinks.classList.toggle('show');
+                    this.textContent = navLinks.classList.contains('show') ? '✕' : '☰';
+                });
+                
+                // Close menu when clicking links
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.classList.remove('show');
+                        menuToggleBtn.textContent = '☰';
+                    });
+                });
+            }
+        }
+    }
+    console.log('✅ Mobile menu setup complete');
 }
 
 // ==================== SEARCH FUNCTION ====================
@@ -214,9 +282,11 @@ async function performSearch() {
     // Hide other sections
     const chartContainer = document.getElementById('chartContainer');
     const comparisonTable = document.getElementById('comparisonTable');
+    const mlInsights = document.getElementById('mlInsights');
     
     if (chartContainer) chartContainer.style.display = 'none';
     if (comparisonTable) comparisonTable.style.display = 'none';
+    if (mlInsights) mlInsights.style.display = 'none';
     
     try {
         // For demo - use local data
@@ -418,9 +488,6 @@ function processVoiceResult(transcript) {
     setTimeout(() => {
         // Stop listening
         stopVoiceSearch();
-
-        const resultsGrid = document.getElementById('resultsGrid');
-        if (resultsGrid) resultsGrid.innerHTML = '';
         
         // Perform search
         performSearch();
@@ -553,7 +620,6 @@ function useDemoData(query) {
             'Tata CLiQ': 'Tata Retail'
         };
 
-        // Add this to each product object:
         results.push({
             platform: platform.name,
             platform_icon: platform.icon,
@@ -568,7 +634,7 @@ function useDemoData(query) {
             seller: sellerNames[platform.name] || `${platform.name} Seller`,
             url: getProductURL(query, platform.name),
             is_best_price: false,
-            query: query // ADD THIS LINE
+            query: query
         });
     }
 
@@ -604,10 +670,12 @@ function useDemoData(query) {
     
     const chartContainer = document.getElementById('chartContainer');
     const comparisonTable = document.getElementById('comparisonTable');
+    const mlInsights = document.getElementById('mlInsights');
     
     if (chartContainer) chartContainer.style.display = 'block';
     renderComparisonTable(results);
     if (comparisonTable) comparisonTable.style.display = 'block';
+    if (mlInsights) mlInsights.style.display = 'block';
 }
 
 function getRealisticTitle(query, platform) {
@@ -886,6 +954,7 @@ function displayPredictions(predictionData) {
         </div>
     `;
 }
+
 function renderComparisonTable(products) {
     const table = document.getElementById('comparisonTableData');
     if (!table || !products || products.length === 0) return;
@@ -1056,12 +1125,12 @@ function searchTrending(query) {
     const productInput = document.getElementById('productInput');
     if (productInput) {
         showHomeScreen();
-    
+        
         setTimeout(() => {
             productInput.value = query;
             productInput.focus();
             showNotification(`🔍 Searching for: ${query}`, 'info');
-  
+            
             setTimeout(() => {
                 performSearch();
             }, 500);
@@ -1100,6 +1169,47 @@ function showScreen(screenId) {
 
 function showHomeScreen() {
     showScreen('home-screen');
+    
+    const productInput = document.getElementById('productInput');
+    if (productInput) {
+        productInput.value = '';
+        productInput.focus();
+    }
+    
+    const resultsGrid = document.getElementById('resultsGrid');
+    if (resultsGrid) {
+        resultsGrid.innerHTML = '';
+    }
+    
+    const chartContainer = document.getElementById('chartContainer');
+    if (chartContainer) {
+        chartContainer.style.display = 'none';
+    }
+    
+    const comparisonTable = document.getElementById('comparisonTable');
+    if (comparisonTable) {
+        comparisonTable.style.display = 'none';
+    }
+    
+    const mlInsights = document.getElementById('mlInsights');
+    if (mlInsights) {
+        mlInsights.style.display = 'none';
+    }
+    
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.classList.add('hidden');
+    }
+    
+    // Close mobile menu if open
+    const navLinks = document.querySelector('.nav-links');
+    const menuToggle = document.getElementById('menuToggle');
+    if (navLinks && navLinks.classList.contains('show')) {
+        navLinks.classList.remove('show');
+        if (menuToggle) menuToggle.textContent = '☰';
+    }
+    
+    console.log('✅ Home screen shown');
 }
 
 function openLoginModal() {
@@ -1438,8 +1548,8 @@ function updateUIForLoggedInUser() {
 
 function upgradeToPremium() {
     showNotification('🎉 Premium upgrade initiated!', 'success');
-
 }
+
 // ==================== HELPER FUNCTIONS ====================
 function showNotification(message, type = 'info') {
     const colors = {
@@ -1560,96 +1670,6 @@ window.viewDeal = viewDeal;
 window.showHomeScreen = showHomeScreen;
 window.handleGoogleLogin = handleGoogleLogin;
 window.handleGitHubLogin = handleGitHubLogin;
-// ==================== MOBILE MENU ====================
-function setupMobileMenu() {
-    const menuToggle = document.getElementById('menuToggle');
-    const navLinks = document.querySelector('.nav-links');
-    
-    if (menuToggle && navLinks) {
-        menuToggle.addEventListener('click', function() {
-            navLinks.classList.toggle('show');
-            menuToggle.textContent = navLinks.classList.contains('show') ? '✕' : '☰';
-        });
-        
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', function() {
-                navLinks.classList.remove('show');
-                menuToggle.textContent = '☰';
-            });
-        });
-        
-        document.addEventListener('click', function(event) {
-            if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
-                navLinks.classList.remove('show');
-                menuToggle.textContent = '☰';
-            }
-        });
-    }
-}
-
-// ==================== IMPROVED showHomeScreen() ====================
-function showHomeScreen() {
-    // Show home screen
-    document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
-    const homeScreen = document.getElementById('home-screen');
-    if (homeScreen) {
-        homeScreen.classList.remove('hidden');
-    }
-    
-    const productInput = document.getElementById('productInput');
-    if (productInput) {
-        productInput.value = '';
-        productInput.focus();
-    }
-    
-    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-    const navHome = document.getElementById('nav-home');
-    if (navHome) {
-        navHome.classList.add('active');
-    }
-    
-    const navAnalysis = document.getElementById('nav-analysis');
-    if (navAnalysis) {
-        navAnalysis.style.display = 'none';
-    }
-    
-    const resultsGrid = document.getElementById('resultsGrid');
-    if (resultsGrid) {
-        resultsGrid.innerHTML = '';
-    }
-    
-    const chartContainer = document.getElementById('chartContainer');
-    if (chartContainer) {
-        chartContainer.style.display = 'none';
-    }
-    
-    const comparisonTable = document.getElementById('comparisonTable');
-    if (comparisonTable) {
-        comparisonTable.style.display = 'none';
-    }
-    
-    const mlInsights = document.getElementById('mlInsights');
-    if (mlInsights) {
-        mlInsights.style.display = 'none';
-    }
-    
-
-    const loader = document.getElementById('loader');
-    if (loader) {
-        loader.classList.add('hidden');
-    }
-
-    const navLinks = document.querySelector('.nav-links');
-    const menuToggle = document.getElementById('menuToggle');
-    if (navLinks && navLinks.classList.contains('show')) {
-        navLinks.classList.remove('show');
-        if (menuToggle) menuToggle.textContent = '☰';
-    }
-    
-    // 🆕 Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    console.log('✅ Home screen shown - search cleared');
-}
+window.upgradeToPremium = upgradeToPremium;
 
 console.log('✅ PriceSmart AI JavaScript loaded successfully!');
