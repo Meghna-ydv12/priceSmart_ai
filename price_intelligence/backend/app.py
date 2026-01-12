@@ -284,17 +284,10 @@ class PriceScraper:
 # ==================== AI PREDICTOR ====================
 class AIPredictor:
     def __init__(self):
-        self.model_path = MODEL_PATH
-        self.model = self.load_or_create_model()
+        pass
     
     def load_or_create_model(self):
-        if os.path.exists(self.model_path):
-            try:
-                with open(self.model_path, 'rb') as f:
-                    return pickle.load(f)
-            except:
-                pass
-        return LinearRegression()
+        return None
     
     def predict(self, current_price, product_name):
         predictions = []
@@ -756,3 +749,4 @@ if __name__ == '__main__':
     
 
     app.run(host='0.0.0.0', port=port, debug=False)  
+
