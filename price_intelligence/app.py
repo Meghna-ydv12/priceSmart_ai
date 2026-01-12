@@ -9,7 +9,7 @@ import secrets
 import re
 import jwt
 
-app = Flask(__name__, static_folder='../frontend', static_url_path='')
+app = Flask(__name__, static_folder='./frontend', static_url_path='')
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
 
@@ -760,4 +760,5 @@ if __name__ == '__main__':
         print("3. Check requirements.txt has all packages")
         print("="*70)
     
+
     app.run(host='0.0.0.0', port=port, debug=False)  
