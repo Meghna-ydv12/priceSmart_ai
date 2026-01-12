@@ -9,7 +9,7 @@ import secrets
 import re
 import jwt
 
-app = Flask(__name__, static_folder='./frontend', static_url_path='')
+app = Flask(__name__, static_folder='frontend', static_url_path='')
 app.config['SECRET_KEY'] = secrets.token_hex(32)
 app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
 
@@ -392,11 +392,11 @@ def token_required(f):
 # ==================== STATIC FILE SERVING ====================
 @app.route('/')
 def serve_index():
-    return send_from_directory('../frontend', 'index.html')
+    return send_from_directory('frontend', 'index.html')
 
 @app.route('/<path:filename>')
 def serve_static(filename):
-    return send_from_directory('../frontend', filename)
+    return send_from_directory('frontend', filename)
 
 # ==================== API ROUTES ====================
 
@@ -762,3 +762,4 @@ if __name__ == '__main__':
     
 
     app.run(host='0.0.0.0', port=port, debug=False)  
+
