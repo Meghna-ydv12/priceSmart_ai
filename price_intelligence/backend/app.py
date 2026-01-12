@@ -1,35 +1,46 @@
 import random
+import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from datetime import datetime, timedelta
-import os
 import sqlite3
 import hashlib
 import secrets
 import re
 import jwt
+import sys
 
-app = Flask(__name__, static_folder='../frontend', static_url_path='')
-app.config['SECRET_KEY'] = secrets.token_hex(32)
-app.config['JWT_SECRET_KEY'] = secrets.token_hex(32)
+print("="*70)
+print("🚀 APP.PY STARTING...")
+print(f"Python version: {sys.version}")
+print(f"Current directory: {os.getcwd()}")
+print("="*70)
 
-# Configure CORS properly
-CORS(app, resources={
-    r"/api/*": {
-        "origins": ["http://localhost:5000", "http://127.0.0.1:5000", "http://localhost:3000"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Accept"],
-        "supports_credentials": True
-    }
-})
+try:
+    print("✅ Testing imports...")
+    import random
+    import os
+    import sqlite3
+    import hashlib
+    import secrets
+    import re
+    import jwt
+    print("✅ All imports successful")
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    sys.exit(1)
 
 # ==================== CONFIGURATION ====================
-import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 DB_PATH = os.path.join(DATA_DIR, 'pricesmart.db')
 MODEL_PATH = os.path.join(DATA_DIR, 'price_model.pkl')
 os.makedirs(DATA_DIR, exist_ok=True)
+
+print(f"📁 BASE_DIR: {BASE_DIR}")
+print(f"📁 DATA_DIR: {DATA_DIR}")
+print(f"📁 DB_PATH: {DB_PATH}")
+print("="*70)
 
 
 # ==================== DATABASE ====================
@@ -280,11 +291,7 @@ class PriceScraper:
 # ==================== AI PREDICTOR ====================
 class AIPredictor:
     def __init__(self):
-        print("✅ AIPredictor initialized")
-        self.model = None
-    
-    def load_or_create_model(self):
-        return None
+        print("🤖 AIPredictor initialized")
     
     def predict(self, current_price, product_name):
         predictions = []
@@ -735,29 +742,31 @@ if __name__ == '__main__':
         port = int(os.environ.get("PORT", 10000))
         
         print("\n" + "="*70)
-        print("🚀 PRICESMART AI - FULL VERSION")
+        print("🚀 STARTING FLASK SERVER...")
+        print(f"🌐 Port: {port}")
         print("="*70)
-        print(f"🌐 Starting server on port: {port}")
         
         # Initialize database
         db.init_database()
         print("✅ Database initialized")
         
+        # Test predictor
+        predictor = AIPredictor()
+        print("✅ AIPredictor initialized")
+        
+        print("\n✅ ALL SYSTEMS GO!")
         print("="*70)
-        print("✅ Server is running!")
-        print("="*70 + "\n")
         
         app.run(host='0.0.0.0', port=port, debug=False)
         
     except Exception as e:
-        print(f"❌ Server failed to start: {e}")
+        print(f"\n❌ CRITICAL ERROR: {type(e).__name__}")
+        print(f"💬 Message: {e}")
         import traceback
+        print("📝 Stack trace:")
         traceback.print_exc()
-        print("\n" + "="*70)
-        print("🔧 Common fixes:")
-        print("1. Check if all imports are correct")
-        print("2. Check if data/ directory exists")
-        print("3. Check requirements.txt has all packages")
         print("="*70)
+        sys.exit(1)
     
+
     app.run(host='0.0.0.0', port=port, debug=False)  
