@@ -399,6 +399,19 @@ def serve_static(filename):
     return send_from_directory('frontend', filename)
 
 # ==================== API ROUTES ====================
+@app.route('/debug')
+def debug():
+    import os
+    base = os.path.dirname(os.path.abspath(__file__))
+    frontend_path = os.path.join(base, 'frontend')
+    
+    return jsonify({
+        'base_dir': base,
+        'frontend_path': frontend_path,
+        'frontend_exists': os.path.exists(frontend_path),
+        'index_exists': os.path.exists(os.path.join(frontend_path, 'index.html')),
+        'files_in_frontend': os.listdir(frontend_path) if os.path.exists(frontend_path) else []
+    })
 
 @app.route('/api/health', methods=['GET'])
 def health():
@@ -746,7 +759,7 @@ if __name__ == '__main__':
         print("="*70)
         print("✅ Server is running!")
         print("="*70 + "\n")
-        
+
         app.run(host='0.0.0.0', port=port, debug=False)
         
     except Exception as e:
@@ -759,7 +772,6 @@ if __name__ == '__main__':
         print("2. Check if data/ directory exists")
         print("3. Check requirements.txt has all packages")
         print("="*70)
-    
+ 
 
-    app.run(host='0.0.0.0', port=port, debug=False)  
 
