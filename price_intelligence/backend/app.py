@@ -9,9 +9,6 @@ import secrets
 import re
 import jwt
 from pathlib import Path
-import numpy as np
-from sklearn.linear_model import LinearRegression
-import pickle
 
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 app.config['SECRET_KEY'] = secrets.token_hex(32)
@@ -757,4 +754,5 @@ if __name__ == '__main__':
     print("\nPress Ctrl+C to stop the server")
     print("="*70 + "\n")
     
+
     app.run(host='0.0.0.0', port=port, debug=False)  
