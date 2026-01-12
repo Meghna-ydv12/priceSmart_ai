@@ -9,7 +9,8 @@ let isListening = false;
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 PriceSmart AI Initializing...');
-    
+
+     setupMobileMenu();
     // Setup all event listeners
     setupEventListeners();
     
@@ -160,7 +161,14 @@ function setupEventListeners() {
         closeProfileBtn.addEventListener('click', closeProfileModal);
     }
     
-    // Setup modal close on background click
+    const backButtons = ['newSearchBtn', 'homeLogo', 'nav-home'];
+    backButtons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showHomeScreen();
+
     document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -410,6 +418,9 @@ function processVoiceResult(transcript) {
     setTimeout(() => {
         // Stop listening
         stopVoiceSearch();
+
+        const resultsGrid = document.getElementById('resultsGrid');
+        if (resultsGrid) resultsGrid.innerHTML = '';
         
         // Perform search
         performSearch();
@@ -1044,16 +1055,17 @@ function searchTrending(query) {
     
     const productInput = document.getElementById('productInput');
     if (productInput) {
-        productInput.value = query;
-        productInput.focus();
-        
-        // Show notification
-        showNotification(`🔍 Searching for: ${query}`, 'info');
-        
-        // Perform search after a short delay
+        showHomeScreen();
+    
         setTimeout(() => {
-            performSearch();
-        }, 500);
+            productInput.value = query;
+            productInput.focus();
+            showNotification(`🔍 Searching for: ${query}`, 'info');
+  
+            setTimeout(() => {
+                performSearch();
+            }, 500);
+        }, 100);
     }
 }
 
@@ -1548,5 +1560,96 @@ window.viewDeal = viewDeal;
 window.showHomeScreen = showHomeScreen;
 window.handleGoogleLogin = handleGoogleLogin;
 window.handleGitHubLogin = handleGitHubLogin;
+// ==================== MOBILE MENU ====================
+function setupMobileMenu() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (menuToggle && navLinks) {
+        menuToggle.addEventListener('click', function() {
+            navLinks.classList.toggle('show');
+            menuToggle.textContent = navLinks.classList.contains('show') ? '✕' : '☰';
+        });
+        
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function() {
+                navLinks.classList.remove('show');
+                menuToggle.textContent = '☰';
+            });
+        });
+        
+        document.addEventListener('click', function(event) {
+            if (!navLinks.contains(event.target) && !menuToggle.contains(event.target)) {
+                navLinks.classList.remove('show');
+                menuToggle.textContent = '☰';
+            }
+        });
+    }
+}
+
+// ==================== IMPROVED showHomeScreen() ====================
+function showHomeScreen() {
+    // Show home screen
+    document.querySelectorAll('.view-section').forEach(s => s.classList.add('hidden'));
+    const homeScreen = document.getElementById('home-screen');
+    if (homeScreen) {
+        homeScreen.classList.remove('hidden');
+    }
+    
+    const productInput = document.getElementById('productInput');
+    if (productInput) {
+        productInput.value = '';
+        productInput.focus();
+    }
+    
+    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+    const navHome = document.getElementById('nav-home');
+    if (navHome) {
+        navHome.classList.add('active');
+    }
+    
+    const navAnalysis = document.getElementById('nav-analysis');
+    if (navAnalysis) {
+        navAnalysis.style.display = 'none';
+    }
+    
+    const resultsGrid = document.getElementById('resultsGrid');
+    if (resultsGrid) {
+        resultsGrid.innerHTML = '';
+    }
+    
+    const chartContainer = document.getElementById('chartContainer');
+    if (chartContainer) {
+        chartContainer.style.display = 'none';
+    }
+    
+    const comparisonTable = document.getElementById('comparisonTable');
+    if (comparisonTable) {
+        comparisonTable.style.display = 'none';
+    }
+    
+    const mlInsights = document.getElementById('mlInsights');
+    if (mlInsights) {
+        mlInsights.style.display = 'none';
+    }
+    
+
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.classList.add('hidden');
+    }
+
+    const navLinks = document.querySelector('.nav-links');
+    const menuToggle = document.getElementById('menuToggle');
+    if (navLinks && navLinks.classList.contains('show')) {
+        navLinks.classList.remove('show');
+        if (menuToggle) menuToggle.textContent = '☰';
+    }
+    
+    // 🆕 Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    console.log('✅ Home screen shown - search cleared');
+}
 
 console.log('✅ PriceSmart AI JavaScript loaded successfully!');
